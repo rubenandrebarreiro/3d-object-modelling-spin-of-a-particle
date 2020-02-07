@@ -1,0 +1,23 @@
+{
+  "name": "3d-object-modelling-spin-of-a-particle",
+  "version": "1.0.0",
+  "description": "3D Object Modelling - Spin of a Particle",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rubenandrebarreiro/3d-object-modelling-spin-of-a-particle.git"
+  },
+  "keywords": ["quantum", "computing", "information", "theory", "quantumcomputing", "quantuminformation", "quantumtheory", "3dprogramming", "3dmodelling", "3d", "programming", "modelling"],
+  "author": "Rúben André Barreiro",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rubenandrebarreiro/3d-object-modelling-spin-of-a-particle/issues"
+  },
+  "homepage": "https://github.com/rubenandrebarreiro/3d-object-modelling-spin-of-a-particle/3d-object-modelling-spin-of-a-particle.html",
+  "dependencies": {
+    "three": "0.113.2"
+  }
+}
