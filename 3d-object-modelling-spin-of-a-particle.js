@@ -38,30 +38,11 @@ var camera, controls, spin_particle_scene, renderer, stats;
 var projector, mouse = { x: window.innerHeight, y: window.innerWidth };
 
 // The Intersection of Elements of the Scene (Spin of a Particle Scene)
-// (The Particle and its Spins, i.e., the Particle's Spin Down/Up)
-var PARTICLE_INTERSECTED, SPIN_DOWN_INTERSECTED, SPIN_UP_INTERSECTED;
+// (The Particle and its Spins, i.e., the Particle's Spin Up/Down)
+var PARTICLE_INTERSECTED, SPIN_UP_INTERSECTED, SPIN_DOWN_INTERSECTED;
 
 // The Particle's Elements
 var particle_geometry, particle_material, particle_mesh, particle_property_keys, particle_pivot;
-
-
-// The Particle's Spin Down's Orbit's Ring Elements
-var particle_spin_down_orbit_ring_geometry, particle_spin_down_orbit_ring_material, particle_spin_down_orbit_ring_mesh;
-
-// The Particle's Spin Down's Orbit's Cone Elements
-var particle_spin_down_orbit_cone_geometry, particle_spin_down_orbit_cone_material, particle_spin_down_orbit_cone_mesh;
-
-// The Particle's Spin Down's Arrow's Cylinder Elements
-var particle_spin_down_arrow_cylinder_geometry, particle_spin_down_arrow_cylinder_material, particle_spin_down_arrow_cylinder_mesh;
-
-// The Particle's Spin Down's Arrow's Cone Elements
-var particle_spin_down_arrow_cone_geometry, particle_spin_down_arrow_cone_material, particle_spin_down_arrow_cone_mesh;
-
-// The Particle's Spin Down's Property Keys
-var particle_spin_down_property_keys, particle_spin_down_superposition_property_keys, particle_spin_down_pivot;
-
-// The Particle's Spin Down's Pivots
-var particle_spin_down_motion_pivot, particle_spin_down_arrow_pivot, particle_spin_down_pivot;
 
 
 // The Particle's Spin Up's Orbit's Ring Elements
@@ -81,6 +62,25 @@ var particle_spin_up_property_keys, particle_spin_up_superposition_property_keys
 
 // The Particle's Spin Up's Pivots
 var particle_spin_up_motion_pivot, particle_spin_up_arrow_pivot, particle_spin_up_pivot;
+
+
+// The Particle's Spin Down's Orbit's Ring Elements
+var particle_spin_down_orbit_ring_geometry, particle_spin_down_orbit_ring_material, particle_spin_down_orbit_ring_mesh;
+
+// The Particle's Spin Down's Orbit's Cone Elements
+var particle_spin_down_orbit_cone_geometry, particle_spin_down_orbit_cone_material, particle_spin_down_orbit_cone_mesh;
+
+// The Particle's Spin Down's Arrow's Cylinder Elements
+var particle_spin_down_arrow_cylinder_geometry, particle_spin_down_arrow_cylinder_material, particle_spin_down_arrow_cylinder_mesh;
+
+// The Particle's Spin Down's Arrow's Cone Elements
+var particle_spin_down_arrow_cone_geometry, particle_spin_down_arrow_cone_material, particle_spin_down_arrow_cone_mesh;
+
+// The Particle's Spin Down's Property Keys
+var particle_spin_down_property_keys, particle_spin_down_superposition_property_keys, particle_spin_down_pivot;
+
+// The Particle's Spin Down's Pivots
+var particle_spin_down_motion_pivot, particle_spin_down_arrow_pivot, particle_spin_down_pivot;
 
 
 // The Form's Controls/Elements - Radios and Checkboxes for
@@ -129,13 +129,13 @@ function load_particle_json(callback) {
     obj.send(null);  
 }
 
-// Loads the Particle's Spin Down's JSON file
-function load_particle_spin_down_json(callback) {   
+// Loads the Particle's Spin Up's JSON file
+function load_particle_spin_up_json(callback) {   
 
     var obj = new XMLHttpRequest();
 
     obj.overrideMimeType("application/json");
-    obj.open('GET', 'assets/info/json/particle_spin_down_data.json', true);
+    obj.open('GET', 'assets/info/json/particle_spin_up_data.json', true);
 
     obj.onreadystatechange = function () {
 
@@ -151,13 +151,13 @@ function load_particle_spin_down_json(callback) {
     obj.send(null);  
 }
 
-// Loads the Particle's Spin Up's JSON file
-function load_particle_spin_up_json(callback) {   
+// Loads the Particle's Spin Down's JSON file
+function load_particle_spin_down_json(callback) {   
 
     var obj = new XMLHttpRequest();
 
     obj.overrideMimeType("application/json");
-    obj.open('GET', 'assets/info/json/particle_spin_up_data.json', true);
+    obj.open('GET', 'assets/info/json/particle_spin_down_data.json', true);
 
     obj.onreadystatechange = function () {
 
@@ -208,10 +208,10 @@ function init() {
 
     // The integer value to keep the information about if
     // the Particle's Spin it's currently:
-    // - 0: Spinning Down;
-    // - 1: Spinning Up; 
+    // - 0: Spinning Up; 
+    // - 1: Spinning Down;
     // - 2: Quantum Superposition of both Spins;
-    quantum_state_of_spins = 1;
+    quantum_state_of_spins = 0;
 
     // Resets the Camera
     reset_camera();
@@ -333,8 +333,8 @@ function set_event_listeners() {
 function add_elements_to_scene() {
     
     add_particle_to_scene();
-    add_particle_spin_down_to_scene();
     add_particle_spin_up_to_scene();
+    add_particle_spin_down_to_scene();
     
 }
 
@@ -383,200 +383,6 @@ function add_particle_to_scene() {
     // Adds the group for the Particle's Pivot to
     // the Scene (Spin of a Particle Scene) 
     spin_particle_scene.add(particle_pivot);
-
-}
-
-
-// Adds the Particle's Spin Down State to the Scene (Spin of a Particle Scene)
-function add_particle_spin_down_to_scene() {
-
-    // Creates the Particle's Spin Down State's Motion
-    create_particle_spin_down_motion();
-
-    // Creates the Particle's Spin Down State's Arrow
-    create_particle_spin_down_arrow();
-
-
-    // Loads the JSON data file of the Particle's Spin Down State Element
-    load_particle_spin_down_json(function(response) {
-
-        // Parses Particle's Spin Down State's JSON string into object
-        var particle_spin_down_data_json = JSON.parse(response);
-
-        // Loads the Property Keys' data of
-        // the JSON data file of the Particle's Spin Down State's Element
-        particle_spin_down_property_keys = Object.keys(particle_spin_down_data_json);
-
-        // Binds the Property Keys' data of
-        // the JSON data file of the Particle's Spin Down State's Element to
-        // the Mesh of the Particle's Spin Down State
-        for(i = 0; i < particle_spin_down_property_keys.length; i++)
-            particle_spin_down_arrow_pivot[particle_spin_down_property_keys[i]] = particle_spin_down_data_json[particle_spin_down_property_keys[i]];
-
-    });
-
-
-    // Loads the JSON data file of the Particle's Quantum Superposition of Spins' States' Element
-    load_particle_spins_superposition_json(function(response) {
-
-        // Parses Particle's Quantum Superposition of Spins' States' JSON string into object
-        var particle_spin_down_superposition_data_json = JSON.parse(response);
-
-        // Loads the Property Keys' data of
-        // the JSON data file of the Particle's Quantum Superposition of Spins' States' Element
-        particle_spin_down_superposition_property_keys = Object.keys(particle_spin_down_superposition_data_json);
-
-        // Binds the Property Keys' data of
-        // the JSON data file of the Particle's Quantum Superposition of Spins' States' Element to
-        // the Mesh of the Particle's Spin Down State
-        for(i = 0; i < particle_spin_down_superposition_property_keys.length; i++)
-            particle_spin_down_arrow_pivot[ (particle_spin_down_property_keys.length + particle_spin_down_superposition_property_keys)[i] ] = particle_spin_down_superposition_data_json[particle_spin_down_superposition_property_keys[i]];
-
-    });
-
-    // Creates the group for the Particle's Spin Down State's Pivot
-    particle_spin_down_pivot = new THREE.Group();
-
-    // Adds the Mesh of the Particle's Spin Down State's Motion's Pivot to
-    // the group for the Particle's Spin Down State's Pivot
-    particle_spin_down_pivot.add(particle_spin_down_motion_pivot);
-
-    // Adds the Mesh of the Particle's Spin Down State's Arrow's Pivot to
-    // the group for the Particle's Spin Down State's Pivot
-    particle_spin_down_pivot.add(particle_spin_down_arrow_pivot);
-    
-    // Adds the group for the Particle's Spin Down State's Pivot to
-    // the Scene (Spin of a Particle Scene) 
-    spin_particle_scene.add(particle_spin_down_pivot);
-
-}
-
-// Creates the Particle's Spin Down State's Orbit Motion
-function create_particle_spin_down_motion() {
-
-    // Creates the Geometry of the Ring representing
-    // the Particle's Spin Down State's Orbit Motion
-    particle_spin_down_orbit_ring_geometry = new THREE.RingGeometry(1.5, 1.52, 60);
-
-    // Creates the Material of the Ring representing
-    // the Particle's Spin Down State's Orbit Motion
-    particle_spin_down_orbit_ring_material = new THREE.MeshBasicMaterial(
-        {
-            color: 0xffffff,
-            depthTest: false,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.0
-        }
-    );
-
-    // Creates the Mesh of the Particle's Spin Down State's Orbit Motion's Ring
-    particle_spin_down_orbit_ring_mesh = new THREE.Mesh(particle_spin_down_orbit_ring_geometry, particle_spin_down_orbit_ring_material);
-
-    // Rotates the Particle's Spin Down State's Orbit Motion PI/2
-    // (i.e., 90º degrees), regarding the X Axis
-    particle_spin_down_orbit_ring_mesh.rotation.x = Math.PI / 2;
-    
-    
-    // Creates the Geometry of the Cone representing
-    // the Particle's Spin Down State's Orbit Motion
-    particle_spin_down_orbit_cone_geometry = new THREE.ConeGeometry( 0.2, 0.2, 40 );
-
-    // Creates the Material of the Cone representing
-    // the Particle's Spin Down State's Orbit Motion
-    particle_spin_down_orbit_cone_material = new THREE.MeshBasicMaterial(
-        {
-            color: 0xffffff,
-            depthTest: false,
-            transparent: true,
-            opacity: 0.0
-        }
-    );
-
-    // Creates the Mesh of the Particle's Spin Down State's Orbit Motion's Cone
-    particle_spin_down_orbit_cone_mesh = new THREE.Mesh(particle_spin_down_orbit_cone_geometry, particle_spin_down_orbit_cone_material);            
-    
-    // Rotates the Particle's Spin Down State's Orbit Motion PI/2
-    // (i.e., 90º degrees), regarding the Z Axis
-    particle_spin_down_orbit_cone_mesh.rotation.z += Math.PI / 2;
-    
-    // Translates/Moves the Particle's Spin Down State's Orbit
-    // -1.51 units, regarding the Z Axis
-    particle_spin_down_orbit_cone_mesh.position.z = -1.51;
-    
-    
-    // Creates the group for the Particle's Spin Down State's Motion Pivot
-    particle_spin_down_motion_pivot = new THREE.Group();
-
-    // Adds the Mesh of the Particle's Spin Down State's Orbit Motion
-    // the group for the Particle's Spin Down State's Motion Pivot
-    particle_spin_down_motion_pivot.add(particle_spin_down_orbit_ring_mesh);
-
-    // Adds the Mesh of the Particle's Spin Down State's Orbit Motion
-    // the group for the Particle's Spin Down State's Motion Pivot
-    particle_spin_down_motion_pivot.add(particle_spin_down_orbit_cone_mesh);
-
-}
-
-// Creates the Particle's Spin Down State's Arrow
-function create_particle_spin_down_arrow() {
-
-    // Creates the Geometry of the Cylinder representing
-    // the Particle's Spin Down State's Arrow
-    particle_spin_down_arrow_cylinder_geometry = new THREE.CylinderGeometry( 0.2, 0.2, 3.5, 32 );
-
-    // Creates the Material of the Cylinder representing
-    // the Particle's Spin Down State's Arrow
-    particle_spin_down_arrow_cylinder_material = new THREE.MeshBasicMaterial(
-        {
-            color: 0xf88000,
-            depthTest: false,
-            transparent: true,
-            opacity: 0.0
-        }
-    );
-
-    // Creates the Mesh of the Particle's Spin Down State's Arrow's Cylinder
-    particle_spin_down_arrow_cylinder_mesh = new THREE.Mesh(particle_spin_down_arrow_cylinder_geometry, particle_spin_down_arrow_cylinder_material);
-    
-    
-    // Creates the Geometry of the Cone representing
-    // the Particle's Spin Down State's Arrow
-    particle_spin_down_arrow_cone_geometry = new THREE.ConeGeometry( 0.4, 0.4, 40 );
-
-    // Creates the Material of the Cone representing
-    // the Particle's Spin Down State's Arrow
-    particle_spin_down_arrow_cone_material = new THREE.MeshBasicMaterial(
-        {
-            color: 0xf22000,
-            depthTest: false,
-            transparent: true,
-            opacity: 0.0
-        }
-    );
-
-    // Creates the Mesh of the Particle's Spin Down State's Arrow's Cone
-    particle_spin_down_arrow_cone_mesh = new THREE.Mesh(particle_spin_down_arrow_cone_geometry, particle_spin_down_arrow_cone_material);
-    
-    // Rotates the Particle's Spin Down State's Arrow's Cone PI
-    // (i.e., 180º degrees), regarding the X Axis
-    particle_spin_down_arrow_cone_mesh.rotation.x += Math.PI;
-    
-    // Translates/Moves the Particle's Spin Down State's Arrow's Cone
-    // -1.85 units, regarding the Y Axis
-    particle_spin_down_arrow_cone_mesh.position.y = -1.85;
-    
-
-    // Creates the group for the Particle's Spin Down State's Arrow Pivot
-    particle_spin_down_arrow_pivot = new THREE.Group();
-
-    // Adds the Mesh of the Particle's Spin Down State
-    // the group for the Particle's Spin Down State's Arrow Pivot
-    particle_spin_down_arrow_pivot.add(particle_spin_down_arrow_cylinder_mesh);
-
-    // Adds the Mesh of the Particle's Spin Down State
-    // the group for the Particle's Spin Down State's Arrow Pivot
-    particle_spin_down_arrow_pivot.add(particle_spin_down_arrow_cone_mesh);
 
 }
 
@@ -649,11 +455,11 @@ function add_particle_spin_up_to_scene() {
 function create_particle_spin_up_motion() {
 
     // Creates the Geometry of the Ring representing
-    // the Particle's Spin Up State's Orbit
-    particle_spin_up_orbit_ring_geometry = new THREE.RingGeometry(2.5, 2.52, 60);
+    // the Particle's Spin Up State's Orbit Motion
+    particle_spin_up_orbit_ring_geometry = new THREE.RingGeometry(1.5, 1.52, 60);
 
     // Creates the Material of the Ring representing
-    // the Particle's Spin Up State's Orbit
+    // the Particle's Spin Up State's Orbit Motion
     particle_spin_up_orbit_ring_material = new THREE.MeshBasicMaterial(
         {
             color: 0xffffff,
@@ -664,20 +470,20 @@ function create_particle_spin_up_motion() {
         }
     );
 
-    // Creates the Mesh of the Particle's Spin Up State's Orbit
+    // Creates the Mesh of the Particle's Spin Up State's Orbit Motion's Ring
     particle_spin_up_orbit_ring_mesh = new THREE.Mesh(particle_spin_up_orbit_ring_geometry, particle_spin_up_orbit_ring_material);
 
-    // Rotates the Particle's Spin Up State's Orbit PI/2
+    // Rotates the Particle's Spin Up State's Orbit Motion PI/2
     // (i.e., 90º degrees), regarding the X Axis
     particle_spin_up_orbit_ring_mesh.rotation.x = Math.PI / 2;
     
     
     // Creates the Geometry of the Cone representing
-    // the Particle's Spin Up State's Orbit
+    // the Particle's Spin Up State's Orbit Motion
     particle_spin_up_orbit_cone_geometry = new THREE.ConeGeometry( 0.2, 0.2, 40 );
 
     // Creates the Material of the Cone representing
-    // the Particle's Spin Up State's Orbit
+    // the Particle's Spin Up State's Orbit Motion
     particle_spin_up_orbit_cone_material = new THREE.MeshBasicMaterial(
         {
             color: 0xffffff,
@@ -687,27 +493,27 @@ function create_particle_spin_up_motion() {
         }
     );
 
-    // Creates the Mesh of the Particle's Up State's Orbit
+    // Creates the Mesh of the Particle's Spin Up State's Orbit Motion's Cone
     particle_spin_up_orbit_cone_mesh = new THREE.Mesh(particle_spin_up_orbit_cone_geometry, particle_spin_up_orbit_cone_material);            
     
-    // Rotates the Particle's Spin Up State's Cone PI/2
+    // Rotates the Particle's Spin Up State's Orbit Motion PI/2
     // (i.e., 90º degrees), regarding the Z Axis
-    particle_spin_up_orbit_cone_mesh.rotation.z -= Math.PI / 2;
+    particle_spin_up_orbit_cone_mesh.rotation.z += Math.PI / 2;
     
-    // Translates/Moves the Particle's Spin Up State's Cone
-    // -2.51 units, regarding the Z Axis
-    particle_spin_up_orbit_cone_mesh.position.z = -2.51;
+    // Translates/Moves the Particle's Spin Up State's Orbit
+    // -1.51 units, regarding the Z Axis
+    particle_spin_up_orbit_cone_mesh.position.z = -1.51;
     
     
-    // Creates the group for the Particle's Spin Up State's Motion's Pivot
+    // Creates the group for the Particle's Spin Up State's Motion Pivot
     particle_spin_up_motion_pivot = new THREE.Group();
 
-    // Adds the Mesh of the Particle's Spin Up State's Orbit's Ring to
-    // the group for the Particle's Spin Up State's Motion's Pivot
+    // Adds the Mesh of the Particle's Spin Up State's Orbit Motion
+    // the group for the Particle's Spin Up State's Motion Pivot
     particle_spin_up_motion_pivot.add(particle_spin_up_orbit_ring_mesh);
 
-    // Adds the Mesh of the Particle's Spin Up State's Orbit's Cone to
-    // the group for the Particle's Spin Up State's Motion's Pivot
+    // Adds the Mesh of the Particle's Spin Up State's Orbit Motion
+    // the group for the Particle's Spin Up State's Motion Pivot
     particle_spin_up_motion_pivot.add(particle_spin_up_orbit_cone_mesh);
 
 }
@@ -767,6 +573,200 @@ function create_particle_spin_up_arrow() {
     // Adds the Mesh of the Particle's Spin Up State's Arrow's Cone
     // the group for the Particle's Spin Up State's Pivot
     particle_spin_up_arrow_pivot.add(particle_spin_up_arrow_cone_mesh);
+
+}
+
+
+// Adds the Particle's Spin Down State to the Scene (Spin of a Particle Scene)
+function add_particle_spin_down_to_scene() {
+
+    // Creates the Particle's Spin Down State's Motion
+    create_particle_spin_down_motion();
+
+    // Creates the Particle's Spin Down State's Arrow
+    create_particle_spin_down_arrow();
+
+
+    // Loads the JSON data file of the Particle's Spin Down State Element
+    load_particle_spin_down_json(function(response) {
+
+        // Parses Particle's Spin Down State's JSON string into object
+        var particle_spin_down_data_json = JSON.parse(response);
+
+        // Loads the Property Keys' data of
+        // the JSON data file of the Particle's Spin Down State's Element
+        particle_spin_down_property_keys = Object.keys(particle_spin_down_data_json);
+
+        // Binds the Property Keys' data of
+        // the JSON data file of the Particle's Spin Down State's Element to
+        // the Mesh of the Particle's Spin Down State
+        for(i = 0; i < particle_spin_down_property_keys.length; i++)
+            particle_spin_down_arrow_pivot[particle_spin_down_property_keys[i]] = particle_spin_down_data_json[particle_spin_down_property_keys[i]];
+
+    });
+
+
+    // Loads the JSON data file of the Particle's Quantum Superposition of Spins' States' Element
+    load_particle_spins_superposition_json(function(response) {
+
+        // Parses Particle's Quantum Superposition of Spins' States' JSON string into object
+        var particle_spin_down_superposition_data_json = JSON.parse(response);
+
+        // Loads the Property Keys' data of
+        // the JSON data file of the Particle's Quantum Superposition of Spins' States' Element
+        particle_spin_down_superposition_property_keys = Object.keys(particle_spin_down_superposition_data_json);
+
+        // Binds the Property Keys' data of
+        // the JSON data file of the Particle's Quantum Superposition of Spins' States' Element to
+        // the Mesh of the Particle's Spin Down State
+        for(i = 0; i < particle_spin_down_superposition_property_keys.length; i++)
+            particle_spin_down_arrow_pivot[ (particle_spin_down_property_keys.length + particle_spin_down_superposition_property_keys)[i] ] = particle_spin_down_superposition_data_json[particle_spin_down_superposition_property_keys[i]];
+
+    });
+
+    // Creates the group for the Particle's Spin Down State's Pivot
+    particle_spin_down_pivot = new THREE.Group();
+
+    // Adds the Mesh of the Particle's Spin Down State's Motion's Pivot to
+    // the group for the Particle's Spin Down State's Pivot
+    particle_spin_down_pivot.add(particle_spin_down_motion_pivot);
+
+    // Adds the Mesh of the Particle's Spin Down State's Arrow's Pivot to
+    // the group for the Particle's Spin Down State's Pivot
+    particle_spin_down_pivot.add(particle_spin_down_arrow_pivot);
+    
+    // Adds the group for the Particle's Spin Down State's Pivot to
+    // the Scene (Spin of a Particle Scene) 
+    spin_particle_scene.add(particle_spin_down_pivot);
+
+}
+
+// Creates the Particle's Spin Down State's Orbit Motion
+function create_particle_spin_down_motion() {
+
+    // Creates the Geometry of the Ring representing
+    // the Particle's Spin Down State's Orbit
+    particle_spin_down_orbit_ring_geometry = new THREE.RingGeometry(2.5, 2.52, 60);
+
+    // Creates the Material of the Ring representing
+    // the Particle's Spin Down State's Orbit
+    particle_spin_down_orbit_ring_material = new THREE.MeshBasicMaterial(
+        {
+            color: 0xffffff,
+            depthTest: false,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.0
+        }
+    );
+
+    // Creates the Mesh of the Particle's Spin Down State's Orbit
+    particle_spin_down_orbit_ring_mesh = new THREE.Mesh(particle_spin_down_orbit_ring_geometry, particle_spin_down_orbit_ring_material);
+
+    // Rotates the Particle's Spin Down State's Orbit PI/2
+    // (i.e., 90º degrees), regarding the X Axis
+    particle_spin_down_orbit_ring_mesh.rotation.x = Math.PI / 2;
+    
+    
+    // Creates the Geometry of the Cone representing
+    // the Particle's Spin Down State's Orbit
+    particle_spin_down_orbit_cone_geometry = new THREE.ConeGeometry( 0.2, 0.2, 40 );
+
+    // Creates the Material of the Cone representing
+    // the Particle's Spin Down State's Orbit
+    particle_spin_down_orbit_cone_material = new THREE.MeshBasicMaterial(
+        {
+            color: 0xffffff,
+            depthTest: false,
+            transparent: true,
+            opacity: 0.0
+        }
+    );
+
+    // Creates the Mesh of the Particle's Down State's Orbit
+    particle_spin_down_orbit_cone_mesh = new THREE.Mesh(particle_spin_down_orbit_cone_geometry, particle_spin_down_orbit_cone_material);            
+    
+    // Rotates the Particle's Spin Down State's Cone PI/2
+    // (i.e., 90º degrees), regarding the Z Axis
+    particle_spin_down_orbit_cone_mesh.rotation.z -= Math.PI / 2;
+    
+    // Translates/Moves the Particle's Spin Down State's Cone
+    // -2.51 units, regarding the Z Axis
+    particle_spin_down_orbit_cone_mesh.position.z = -2.51;
+    
+    
+    // Creates the group for the Particle's Spin Down State's Motion's Pivot
+    particle_spin_down_motion_pivot = new THREE.Group();
+
+    // Adds the Mesh of the Particle's Spin Down State's Orbit's Ring to
+    // the group for the Particle's Spin Down State's Motion's Pivot
+    particle_spin_down_motion_pivot.add(particle_spin_down_orbit_ring_mesh);
+
+    // Adds the Mesh of the Particle's Spin Down State's Orbit's Cone to
+    // the group for the Particle's Spin Down State's Motion's Pivot
+    particle_spin_down_motion_pivot.add(particle_spin_down_orbit_cone_mesh);
+
+}
+
+// Creates the Particle's Spin Down State's Arrow
+function create_particle_spin_down_arrow() {
+
+    // Creates the Geometry of the Cylinder representing
+    // the Particle's Spin Down State's Arrow
+    particle_spin_down_arrow_cylinder_geometry = new THREE.CylinderGeometry( 0.2, 0.2, 3.5, 32 );
+
+    // Creates the Material of the Cylinder representing
+    // the Particle's Spin Down State's Arrow
+    particle_spin_down_arrow_cylinder_material = new THREE.MeshBasicMaterial(
+        {
+            color: 0xf88000,
+            depthTest: false,
+            transparent: true,
+            opacity: 0.0
+        }
+    );
+
+    // Creates the Mesh of the Particle's Spin Down State's Arrow's Cylinder
+    particle_spin_down_arrow_cylinder_mesh = new THREE.Mesh(particle_spin_down_arrow_cylinder_geometry, particle_spin_down_arrow_cylinder_material);
+    
+    
+    // Creates the Geometry of the Cone representing
+    // the Particle's Spin Down State's Arrow
+    particle_spin_down_arrow_cone_geometry = new THREE.ConeGeometry( 0.4, 0.4, 40 );
+
+    // Creates the Material of the Cone representing
+    // the Particle's Spin Down State's Arrow
+    particle_spin_down_arrow_cone_material = new THREE.MeshBasicMaterial(
+        {
+            color: 0xf22000,
+            depthTest: false,
+            transparent: true,
+            opacity: 0.0
+        }
+    );
+
+    // Creates the Mesh of the Particle's Spin Down State's Arrow's Cone
+    particle_spin_down_arrow_cone_mesh = new THREE.Mesh(particle_spin_down_arrow_cone_geometry, particle_spin_down_arrow_cone_material);
+    
+    // Rotates the Particle's Spin Down State's Arrow's Cone PI
+    // (i.e., 180º degrees), regarding the X Axis
+    particle_spin_down_arrow_cone_mesh.rotation.x += Math.PI;
+    
+    // Translates/Moves the Particle's Spin Down State's Arrow's Cone
+    // -1.85 units, regarding the Y Axis
+    particle_spin_down_arrow_cone_mesh.position.y = -1.85;
+    
+
+    // Creates the group for the Particle's Spin Down State's Arrow Pivot
+    particle_spin_down_arrow_pivot = new THREE.Group();
+
+    // Adds the Mesh of the Particle's Spin Down State
+    // the group for the Particle's Spin Down State's Arrow Pivot
+    particle_spin_down_arrow_pivot.add(particle_spin_down_arrow_cylinder_mesh);
+
+    // Adds the Mesh of the Particle's Spin Down State
+    // the group for the Particle's Spin Down State's Arrow Pivot
+    particle_spin_down_arrow_pivot.add(particle_spin_down_arrow_cone_mesh);
 
 }
 
@@ -969,43 +969,43 @@ function on_check_particle_spins_motions() {
             
             if(quantum_state_of_spins == 0) {
 
-                particle_spin_down_orbit_ring_mesh.material.opacity = 1.0;           
-                particle_spin_down_orbit_ring_mesh.material.depthTest = true;
-                particle_spin_down_orbit_cone_mesh.material.opacity = 1.0;
-                particle_spin_down_orbit_cone_mesh.material.depthTest = true;
-
-                particle_spin_up_orbit_ring_mesh.material.opacity = 0.0;           
-                particle_spin_up_orbit_ring_mesh.material.depthTest = false;
-                particle_spin_up_orbit_cone_mesh.material.opacity = 0.0;
-                particle_spin_up_orbit_cone_mesh.material.depthTest = false;
-            
-            }
-            
-            if(quantum_state_of_spins == 1) {
-                
-                particle_spin_down_orbit_ring_mesh.material.opacity = 0.0;           
-                particle_spin_down_orbit_ring_mesh.material.depthTest = false;
-                particle_spin_down_orbit_cone_mesh.material.opacity = 0.0;
-                particle_spin_down_orbit_cone_mesh.material.depthTest = false;
-
                 particle_spin_up_orbit_ring_mesh.material.opacity = 1.0;           
                 particle_spin_up_orbit_ring_mesh.material.depthTest = true;
                 particle_spin_up_orbit_cone_mesh.material.opacity = 1.0;
                 particle_spin_up_orbit_cone_mesh.material.depthTest = true;
+
+                particle_spin_down_orbit_ring_mesh.material.opacity = 0.0;           
+                particle_spin_down_orbit_ring_mesh.material.depthTest = false;
+                particle_spin_down_orbit_cone_mesh.material.opacity = 0.0;
+                particle_spin_down_orbit_cone_mesh.material.depthTest = false;
+                
+            }
+            
+            if(quantum_state_of_spins == 1) {
+                
+                particle_spin_up_orbit_ring_mesh.material.opacity = 0.0;           
+                particle_spin_up_orbit_ring_mesh.material.depthTest = false;
+                particle_spin_up_orbit_cone_mesh.material.opacity = 0.0;
+                particle_spin_up_orbit_cone_mesh.material.depthTest = false;
+                
+                particle_spin_down_orbit_ring_mesh.material.opacity = 1.0;           
+                particle_spin_down_orbit_ring_mesh.material.depthTest = true;
+                particle_spin_down_orbit_cone_mesh.material.opacity = 1.0;
+                particle_spin_down_orbit_cone_mesh.material.depthTest = true;
                 
             }
             
             if(quantum_state_of_spins == 2) {
-                
-                particle_spin_down_orbit_ring_mesh.material.opacity = 0.5;           
-                particle_spin_down_orbit_ring_mesh.material.depthTest = false;
-                particle_spin_down_orbit_cone_mesh.material.opacity = 0.5;
-                particle_spin_down_orbit_cone_mesh.material.depthTest = false;
 
                 particle_spin_up_orbit_ring_mesh.material.opacity = 0.5;           
                 particle_spin_up_orbit_ring_mesh.material.depthTest = false;
                 particle_spin_up_orbit_cone_mesh.material.opacity = 0.5;
                 particle_spin_up_orbit_cone_mesh.material.depthTest = false;
+                
+                particle_spin_down_orbit_ring_mesh.material.opacity = 0.5;           
+                particle_spin_down_orbit_ring_mesh.material.depthTest = false;
+                particle_spin_down_orbit_cone_mesh.material.opacity = 0.5;
+                particle_spin_down_orbit_cone_mesh.material.depthTest = false;
                 
             }
             
@@ -1031,17 +1031,83 @@ function on_check_particle_spins_motions() {
 function on_change_particle_spins() {
 
     // Verifies all the Possible States for the Particle's Spin
-    // - Spin Down State;
     // - Spin Up State;
+    // - Spin Down State;
     // - Quantum Superposition of both Spin Down and Spin Up States;
     for(var i = 0, length = particle_spins_radios.length; i < length; i++) {
         particle_spins_radios[i].onchange = function() {    
 
-            // The Particle have a Spin Down State
+            // The Particle have a Spin Up State
             if(particle_spins_radios[0].checked) {
 
                 particle_material.opacity = 1.0;
                 particle_material.depthTest = true;
+                
+                
+                if( is_showing_particle_spins_motions ) {
+                
+                    particle_spin_up_orbit_ring_material.opacity = 1.0;
+                    particle_spin_up_orbit_ring_material.depthTest = true;
+                
+                    particle_spin_up_orbit_cone_material.opacity = 1.0;
+                    particle_spin_up_orbit_cone_material.depthTest = true;
+                    
+                }
+                else {
+                    
+                    particle_spin_up_orbit_ring_material.opacity = 0.0;
+                    particle_spin_up_orbit_ring_material.depthTest = false;
+
+                    particle_spin_up_orbit_cone_material.opacity = 0.0;
+                    particle_spin_up_orbit_cone_material.depthTest = false;
+
+                }
+                
+                particle_spin_up_arrow_cylinder_material.opacity = 1.0;
+                particle_spin_up_arrow_cylinder_material.depthTest = true;
+                
+                particle_spin_up_arrow_cone_material.opacity = 1.0;
+                particle_spin_up_arrow_cone_material.depthTest = true;
+                
+                
+                particle_spin_down_motion_pivot.position.y = 0;
+                particle_spin_down_motion_pivot.position.y = 0;
+                
+                particle_spin_down_orbit_ring_material.opacity = 0.0;
+                particle_spin_down_orbit_ring_material.depthTest = false;
+                
+                particle_spin_down_orbit_cone_material.opacity = 0.0;
+                particle_spin_down_orbit_cone_material.depthTest = false;
+                
+                particle_spin_down_arrow_cylinder_material.opacity = 0.0;
+                particle_spin_down_arrow_cylinder_material.depthTest = false;
+                
+                particle_spin_down_arrow_cone_material.opacity = 0.0;
+                particle_spin_down_arrow_cone_material.depthTest = false;
+                
+                
+                quantum_state_of_spins = 0;
+                
+            }
+
+            // The Particle have a Spin Down State
+            if(particle_spins_radios[1].checked) {
+                
+                particle_material.opacity = 1.0;
+                particle_material.depthTest = true;
+                
+                
+                particle_spin_up_orbit_ring_material.opacity = 0.0;
+                particle_spin_up_orbit_ring_material.depthTest = false;
+                
+                particle_spin_up_orbit_cone_material.opacity = 0.0;
+                particle_spin_up_orbit_cone_material.depthTest = false;
+                
+                particle_spin_up_arrow_cylinder_material.opacity = 0.0;
+                particle_spin_up_arrow_cylinder_material.depthTest = false;
+                
+                particle_spin_up_arrow_cone_material.opacity = 0.0;
+                particle_spin_up_arrow_cone_material.depthTest = false;
                 
                 
                 if( is_showing_particle_spins_motions ) {
@@ -1070,72 +1136,8 @@ function on_change_particle_spins() {
                 particle_spin_down_arrow_cone_material.opacity = 1.0;
                 particle_spin_down_arrow_cone_material.depthTest = true;
                 
-                
-                particle_spin_up_orbit_ring_material.opacity = 0.0;
-                particle_spin_up_orbit_ring_material.depthTest = false;
-                
-                particle_spin_up_orbit_cone_material.opacity = 0.0;
-                particle_spin_up_orbit_cone_material.depthTest = false;
-                
-                particle_spin_up_arrow_cylinder_material.opacity = 0.0;
-                particle_spin_up_arrow_cylinder_material.depthTest = false;
-                
-                particle_spin_up_arrow_cone_material.opacity = 0.0;
-                particle_spin_up_arrow_cone_material.depthTest = false;
-                
-
-                quantum_state_of_spins = 0;
-            }
-
-            // The Particle have a Spin Up State
-            if(particle_spins_radios[1].checked) {
-
-                particle_material.opacity = 1.0;
-                particle_material.depthTest = true;
-                
-                
-                particle_spin_down_motion_pivot.position.y = 0;
-                particle_spin_up_motion_pivot.position.y = 0;
-                
-                particle_spin_down_orbit_ring_material.opacity = 0.0;
-                particle_spin_down_orbit_ring_material.depthTest = false;
-                
-                particle_spin_down_orbit_cone_material.opacity = 0.0;
-                particle_spin_down_orbit_cone_material.depthTest = false;
-                
-                particle_spin_down_arrow_cylinder_material.opacity = 0.0;
-                particle_spin_down_arrow_cylinder_material.depthTest = false;
-                
-                particle_spin_down_arrow_cone_material.opacity = 0.0;
-                particle_spin_down_arrow_cone_material.depthTest = false;
-                
-                if( is_showing_particle_spins_motions ) {
-                
-                    particle_spin_up_orbit_ring_material.opacity = 1.0;
-                    particle_spin_up_orbit_ring_material.depthTest = true;
-                
-                    particle_spin_up_orbit_cone_material.opacity = 1.0;
-                    particle_spin_up_orbit_cone_material.depthTest = true;
-                    
-                }
-                else {
-                    
-                    particle_spin_up_orbit_ring_material.opacity = 0.0;
-                    particle_spin_up_orbit_ring_material.depthTest = false;
-
-                    particle_spin_up_orbit_cone_material.opacity = 0.0;
-                    particle_spin_up_orbit_cone_material.depthTest = false;
-
-                }
-                
-                particle_spin_up_arrow_cylinder_material.opacity = 1.0;
-                particle_spin_up_arrow_cylinder_material.depthTest = true;
-                
-                particle_spin_up_arrow_cone_material.opacity = 1.0;
-                particle_spin_up_arrow_cone_material.depthTest = true;
-                
-                
                 quantum_state_of_spins = 1;
+    
             }
 
             // The Particle have a Quantum Superposition of Spin States
@@ -1143,32 +1145,6 @@ function on_change_particle_spins() {
 
                 particle_material.opacity = 0.5;
                 particle_material.depthTest = false;
-                
-                
-                if( is_showing_particle_spins_motions ) {
-                    
-                    particle_spin_down_orbit_ring_material.opacity = 0.5;
-                    particle_spin_down_orbit_ring_material.depthTest = false;
-
-                    particle_spin_down_orbit_cone_material.opacity = 0.5;
-                    particle_spin_down_orbit_cone_material.depthTest = false;
-                    
-                }
-                else {
-                    
-                    particle_spin_down_orbit_ring_material.opacity = 0.0;
-                    particle_spin_down_orbit_ring_material.depthTest = false;
-
-                    particle_spin_down_orbit_cone_material.opacity = 0.0;
-                    particle_spin_down_orbit_cone_material.depthTest = false;
-
-                }
-                
-                particle_spin_down_arrow_cylinder_material.opacity = 0.5;
-                particle_spin_down_arrow_cylinder_material.depthTest = false;
-                
-                particle_spin_down_arrow_cone_material.opacity = 0.5;
-                particle_spin_down_arrow_cone_material.depthTest = false;
                 
                 
                 if( is_showing_particle_spins_motions ) {
@@ -1197,6 +1173,32 @@ function on_change_particle_spins() {
                 particle_spin_up_arrow_cone_material.depthTest = false;
                 
                 
+                if( is_showing_particle_spins_motions ) {
+                    
+                    particle_spin_down_orbit_ring_material.opacity = 0.5;
+                    particle_spin_down_orbit_ring_material.depthTest = false;
+
+                    particle_spin_down_orbit_cone_material.opacity = 0.5;
+                    particle_spin_down_orbit_cone_material.depthTest = false;
+                    
+                }
+                else {
+                    
+                    particle_spin_down_orbit_ring_material.opacity = 0.0;
+                    particle_spin_down_orbit_ring_material.depthTest = false;
+
+                    particle_spin_down_orbit_cone_material.opacity = 0.0;
+                    particle_spin_down_orbit_cone_material.depthTest = false;
+
+                }
+                
+                particle_spin_down_arrow_cylinder_material.opacity = 0.5;
+                particle_spin_down_arrow_cylinder_material.depthTest = false;
+                
+                particle_spin_down_arrow_cone_material.opacity = 0.5;
+                particle_spin_down_arrow_cone_material.depthTest = false;
+                
+                
                 quantum_state_of_spins = 2;
                 
             }
@@ -1215,30 +1217,30 @@ function animate() {
     // Finds intersections between the Mouse's Pointer and the Particle
     find_intersections_particle();
 
-    // The Particle it's currently Spinning Down
-    if(quantum_state_of_spins == 0) {
-        
-        // Finds intersections between the Mouse's Pointer and the Particle's Spin Down State
-        find_intersections_spin_down();
-    
-    }
-    
     // The Particle it's currently Spinning Up
-    if(quantum_state_of_spins == 1) {
+    if(quantum_state_of_spins == 0) {
         
         // Finds intersections between the Mouse's Pointer and the Particle's Spin Up State
         find_intersections_spin_up();
+    
+    }
+    
+    // The Particle it's currently Spinning Down
+    if(quantum_state_of_spins == 1) {
+        
+        // Finds intersections between the Mouse's Pointer and the Particle's Spin Down State
+        find_intersections_spin_down();
         
     }
     
     // The Particle it's currently in a Quantum Superposition of Spins' States
     if(quantum_state_of_spins == 2) {
         
-        // Finds intersections between the Mouse's Pointer and the Particle's Spin Down State
-        find_intersections_spin_down();
-        
         // Finds intersections between the Mouse's Pointer and the Particle's Spin Up State
         find_intersections_spin_up();
+        
+        // Finds intersections between the Mouse's Pointer and the Particle's Spin Down State
+        find_intersections_spin_down();
 
     }
     
@@ -1388,216 +1390,6 @@ function find_intersections_particle() {
 
 }
 
-// Finds intersections between the Mouse's Pointer and the Particle's Spin Down State
-function find_intersections_spin_down() {
-
-    // Create a Ray with origin at the mouse position
-    // and direction into the scene (camera direction)
-    var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
-    projector.unprojectVector(vector, camera);
-
-    var ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
-
-    // Create an array containing all objects in the scene with which the ray intersects
-    var intersects = ray.intersectObjects(particle_spin_down_arrow_pivot.children);
-    
-    // SPIN_DOWN_INTERSECTED = the object in the scene currently closest to the camera 
-    // and intersected by the Ray projected from the mouse position 	
-
-    // If there is one (or more) intersections
-    if(intersects.length > 0) {
-        
-        // If the closest object intersected is not the currently stored intersection object
-        if(intersects[0].object != SPIN_DOWN_INTERSECTED) {
-
-            // Restore previous intersection object (if it exists) to its original map's texture
-            if(SPIN_DOWN_INTERSECTED) {
-
-                particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
-                particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
-                             
-                particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xf88000);
-                particle_spin_down_arrow_cone_mesh.material.color.setHex(0xf22000);
-
-                particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
-                particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
-                             
-                particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xf88000);
-                particle_spin_up_arrow_cone_mesh.material.color.setHex(0xf22000);
-                
-                document.getElementById("object_name").innerHTML = "";
-
-                for(i = 1; i < particle_spin_down_property_keys.length; i++) {
-
-                    var div_data_info_elem_id = "object_data_info_" + i;
-                    document.getElementById(div_data_info_elem_id).style.display = "none";
-
-                    var span_data_title_elem_id = "object_data_title_" + i;
-                    document.getElementById(span_data_title_elem_id).innerHTML = "";
-                    document.getElementById(span_data_title_elem_id).style.display = "none";
-
-                    var span_data_content_elem_id = "object_data_content_" + i;
-                    document.getElementById(span_data_content_elem_id).innerHTML = "";
-                    document.getElementById(span_data_content_elem_id).style.display = "none";
-
-                }
-
-                for(i = 1; i < particle_spin_down_superposition_property_keys.length; i++) {
-
-                    var div_data_info_elem_id = "object_data_info_" + i;
-                    document.getElementById(div_data_info_elem_id).style.display = "none";
-
-                    var span_data_title_elem_id = "object_data_title_" + i;
-                    document.getElementById(span_data_title_elem_id).innerHTML = "";
-                    document.getElementById(span_data_title_elem_id).style.display = "none";
-
-                    var span_data_content_elem_id = "object_data_content_" + i;
-                    document.getElementById(span_data_content_elem_id).innerHTML = "";
-                    document.getElementById(span_data_content_elem_id).style.display = "none";
-
-                }
-
-            }
-
-            // Store reference to closest object as current intersection object
-            SPIN_DOWN_INTERSECTED = intersects[0].object;
-
-            // Set a new color for closest object
-            particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
-            particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
-
-            particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xffff00);
-            particle_spin_down_arrow_cone_mesh.material.color.setHex(0xffff00);
-            
-            
-            // The Particle it's currently in a Quantum Superposition of Spins' States
-            if(quantum_state_of_spins == 2) {
-
-                // Set a new color for closest object
-                particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
-                particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
-
-                particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xffff00);
-                particle_spin_up_arrow_cone_mesh.material.color.setHex(0xffff00);
-                
-                document.getElementById("object_name").innerHTML = (intersects[0].object.parent[ (particle_spin_down_property_keys.length + particle_spin_down_superposition_property_keys)[0] ]);
-
-                for(i = 1; i < particle_spin_down_superposition_property_keys.length; i++) {
-
-                    var div_data_info_elem_id = "object_data_info_" + i;
-                    document.getElementById(div_data_info_elem_id).style.display = "inline";
-
-                    var span_data_title_elem_id = "object_data_title_" + i;
-                    document.getElementById(span_data_title_elem_id).innerHTML = particle_spin_down_superposition_property_keys[i];
-                    document.getElementById(span_data_title_elem_id).style.display = "inline";
-
-                    var some_object_data_info = (intersects[0].object.parent[ (particle_spin_down_property_keys.length + particle_spin_down_superposition_property_keys)[i] ])[0];
-
-                    var some_object_data_info_keys = Object.keys(some_object_data_info);
-
-                    var current_object_data_info = "";
-
-                    for(j = 0; j < some_object_data_info_keys.length; j++)
-                        current_object_data_info += "- <b><u>" + some_object_data_info_keys[j] + "</u></b>: " + some_object_data_info[some_object_data_info_keys[j]] + "<br/>";
-
-                    var span_data_content_elem_id = "object_data_content_" + i;
-                    document.getElementById(span_data_content_elem_id).innerHTML = current_object_data_info;
-                    document.getElementById(span_data_content_elem_id).style.display = "inline";
-
-                }
-
-            }
-            else {
-
-                document.getElementById("object_name").innerHTML = intersects[0].object.parent[particle_spin_down_property_keys[0]];
-
-                for(i = 1; i < particle_spin_down_property_keys.length; i++) {
-
-                    var div_data_info_elem_id = "object_data_info_" + i;
-                    document.getElementById(div_data_info_elem_id).style.display = "inline";
-
-                    var span_data_title_elem_id = "object_data_title_" + i;
-                    document.getElementById(span_data_title_elem_id).innerHTML = particle_spin_down_property_keys[i];
-                    document.getElementById(span_data_title_elem_id).style.display = "inline";
-                    
-                    var some_object_data_info = (intersects[0].object.parent[particle_spin_down_property_keys[i]])[0];
-
-                    var some_object_data_info_keys = Object.keys(some_object_data_info);
-
-                    var current_object_data_info = "";
-
-                    for(j = 0; j < some_object_data_info_keys.length; j++)
-                        current_object_data_info += "- <b><u>" + some_object_data_info_keys[j] + "</u></b>: " + some_object_data_info[some_object_data_info_keys[j]] + "<br/>";
-
-                    var span_data_content_elem_id = "object_data_content_" + i;
-                    document.getElementById(span_data_content_elem_id).innerHTML = current_object_data_info;
-                    document.getElementById(span_data_content_elem_id).style.display = "inline";
-
-                }
-
-            }
-
-        }
-    } 
-    else { // There are no intersections
-
-        // Restore previous intersection object (if it exists) to its original map's texture
-        if(SPIN_DOWN_INTERSECTED) {
-            
-            particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
-            particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
-            
-            particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xf88000);
-            particle_spin_down_arrow_cone_mesh.material.color.setHex(0xf22000);
-            
-            particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
-            particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
-            
-            particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xf88000);
-            particle_spin_up_arrow_cone_mesh.material.color.setHex(0xf22000);
-
-            document.getElementById("object_name").innerHTML = "";
-
-            for(i = 1; i < particle_spin_down_property_keys.length; i++) {
-
-                var div_data_info_elem_id = "object_data_info_" + i;
-                document.getElementById(div_data_info_elem_id).style.display = "none";
-
-                var span_data_title_elem_id = "object_data_title_" + i;
-                document.getElementById(span_data_title_elem_id).innerHTML = "";
-                document.getElementById(span_data_title_elem_id).style.display = "none";
-
-                var span_data_content_elem_id = "object_data_content_" + i;
-                document.getElementById(span_data_content_elem_id).innerHTML = "";
-                document.getElementById(span_data_content_elem_id).style.display = "none";
-
-            }
-
-            for(i = 1; i < particle_spin_down_superposition_property_keys.length; i++) {
-
-                var div_data_info_elem_id = "object_data_info_" + i;
-                document.getElementById(div_data_info_elem_id).style.display = "none";
-
-                var span_data_title_elem_id = "object_data_title_" + i;
-                document.getElementById(span_data_title_elem_id).innerHTML = "";
-                document.getElementById(span_data_title_elem_id).style.display = "none";
-
-                var span_data_content_elem_id = "object_data_content_" + i;
-                document.getElementById(span_data_content_elem_id).innerHTML = "";
-                document.getElementById(span_data_content_elem_id).style.display = "none";
-
-            }
-
-        }
-
-        // Remove previous intersection object reference
-        // by setting current intersection object to "nothing"
-        SPIN_DOWN_INTERSECTED = null;
-
-    }
-
-}
-
 // Finds intersections between the Mouse's Pointer and the Particle's Spin Up State
 function find_intersections_spin_up() {
 
@@ -1610,31 +1402,31 @@ function find_intersections_spin_up() {
 
     // Create an array containing all objects in the scene with which the ray intersects
     var intersects = ray.intersectObjects(particle_spin_up_arrow_pivot.children);
-
+    
     // SPIN_UP_INTERSECTED = the object in the scene currently closest to the camera 
     // and intersected by the Ray projected from the mouse position 	
 
     // If there is one (or more) intersections
     if(intersects.length > 0) {
-
+        
         // If the closest object intersected is not the currently stored intersection object
         if(intersects[0].object != SPIN_UP_INTERSECTED) {
 
-            // Restores previous intersection object (if it exists) to its original color
+            // Restore previous intersection object (if it exists) to its original map's texture
             if(SPIN_UP_INTERSECTED) {
-                
-                particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
-                particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
-
-                particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xf88000);
-                particle_spin_down_arrow_cone_mesh.material.color.setHex(0xf22000);
 
                 particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
                 particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
-
+                             
                 particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xf88000);
-                particle_spin_up_arrow_cone_mesh.material.color.setHex(0xff2200);
+                particle_spin_up_arrow_cone_mesh.material.color.setHex(0xf22000);
 
+                particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
+                particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
+                             
+                particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xf88000);
+                particle_spin_down_arrow_cone_mesh.material.color.setHex(0xf22000);
+                
                 document.getElementById("object_name").innerHTML = "";
 
                 for(i = 1; i < particle_spin_up_property_keys.length; i++) {
@@ -1666,6 +1458,7 @@ function find_intersections_spin_up() {
                     document.getElementById(span_data_content_elem_id).style.display = "none";
 
                 }
+
             }
 
             // Store reference to closest object as current intersection object
@@ -1674,14 +1467,14 @@ function find_intersections_spin_up() {
             // Set a new color for closest object
             particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
             particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
-            
+
             particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xffff00);
             particle_spin_up_arrow_cone_mesh.material.color.setHex(0xffff00);
-
-
+            
+            
             // The Particle it's currently in a Quantum Superposition of Spins' States
             if(quantum_state_of_spins == 2) {
-                
+
                 // Set a new color for closest object
                 particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
                 particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
@@ -1700,7 +1493,7 @@ function find_intersections_spin_up() {
                     document.getElementById(span_data_title_elem_id).innerHTML = particle_spin_up_superposition_property_keys[i];
                     document.getElementById(span_data_title_elem_id).style.display = "inline";
 
-                    var some_object_data_info = (intersects[0].object.parent[(particle_spin_up_property_keys.length + particle_spin_up_superposition_property_keys)[i]])[0];
+                    var some_object_data_info = (intersects[0].object.parent[ (particle_spin_up_property_keys.length + particle_spin_up_superposition_property_keys)[i] ])[0];
 
                     var some_object_data_info_keys = Object.keys(some_object_data_info);
 
@@ -1728,7 +1521,7 @@ function find_intersections_spin_up() {
                     var span_data_title_elem_id = "object_data_title_" + i;
                     document.getElementById(span_data_title_elem_id).innerHTML = particle_spin_up_property_keys[i];
                     document.getElementById(span_data_title_elem_id).style.display = "inline";
-
+                    
                     var some_object_data_info = (intersects[0].object.parent[particle_spin_up_property_keys[i]])[0];
 
                     var some_object_data_info_keys = Object.keys(some_object_data_info);
@@ -1747,24 +1540,23 @@ function find_intersections_spin_up() {
             }
 
         }
-
     } 
     else { // There are no intersections
 
         // Restore previous intersection object (if it exists) to its original map's texture
         if(SPIN_UP_INTERSECTED) {
             
-            particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
-            particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
-            
-            particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xf88000);
-            particle_spin_down_arrow_cone_mesh.material.color.setHex(0xf22000);
-            
             particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
             particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
             
             particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xf88000);
             particle_spin_up_arrow_cone_mesh.material.color.setHex(0xf22000);
+            
+            particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
+            particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
+            
+            particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xf88000);
+            particle_spin_down_arrow_cone_mesh.material.color.setHex(0xf22000);
 
             document.getElementById("object_name").innerHTML = "";
 
@@ -1808,6 +1600,216 @@ function find_intersections_spin_up() {
 
 }
 
+// Finds intersections between the Mouse's Pointer and the Particle's Spin Down State
+function find_intersections_spin_down() {
+
+    // Create a Ray with origin at the mouse position
+    // and direction into the scene (camera direction)
+    var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+    projector.unprojectVector(vector, camera);
+
+    var ray = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+
+    // Create an array containing all objects in the scene with which the ray intersects
+    var intersects = ray.intersectObjects(particle_spin_up_arrow_pivot.children);
+
+    // SPIN_DOWN_INTERSECTED = the object in the scene currently closest to the camera 
+    // and intersected by the Ray projected from the mouse position 	
+
+    // If there is one (or more) intersections
+    if(intersects.length > 0) {
+
+        // If the closest object intersected is not the currently stored intersection object
+        if(intersects[0].object != SPIN_DOWN_INTERSECTED) {
+
+            // Restores previous intersection object (if it exists) to its original color
+            if(SPIN_DOWN_INTERSECTED) {
+                
+                particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
+                particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
+
+                particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xf88000);
+                particle_spin_up_arrow_cone_mesh.material.color.setHex(0xf22000);
+
+                particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
+                particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
+
+                particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xf88000);
+                particle_spin_down_arrow_cone_mesh.material.color.setHex(0xff2200);
+
+                document.getElementById("object_name").innerHTML = "";
+
+                for(i = 1; i < particle_spin_down_property_keys.length; i++) {
+
+                    var div_data_info_elem_id = "object_data_info_" + i;
+                    document.getElementById(div_data_info_elem_id).style.display = "none";
+
+                    var span_data_title_elem_id = "object_data_title_" + i;
+                    document.getElementById(span_data_title_elem_id).innerHTML = "";
+                    document.getElementById(span_data_title_elem_id).style.display = "none";
+
+                    var span_data_content_elem_id = "object_data_content_" + i;
+                    document.getElementById(span_data_content_elem_id).innerHTML = "";
+                    document.getElementById(span_data_content_elem_id).style.display = "none";
+
+                }
+
+                for(i = 1; i < particle_spin_down_superposition_property_keys.length; i++) {
+
+                    var div_data_info_elem_id = "object_data_info_" + i;
+                    document.getElementById(div_data_info_elem_id).style.display = "none";
+
+                    var span_data_title_elem_id = "object_data_title_" + i;
+                    document.getElementById(span_data_title_elem_id).innerHTML = "";
+                    document.getElementById(span_data_title_elem_id).style.display = "none";
+
+                    var span_data_content_elem_id = "object_data_content_" + i;
+                    document.getElementById(span_data_content_elem_id).innerHTML = "";
+                    document.getElementById(span_data_content_elem_id).style.display = "none";
+
+                }
+            }
+
+            // Store reference to closest object as current intersection object
+            SPIN_DOWN_INTERSECTED = intersects[0].object;
+
+            // Set a new color for closest object
+            particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
+            particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
+            
+            particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xffff00);
+            particle_spin_down_arrow_cone_mesh.material.color.setHex(0xffff00);
+
+
+            // The Particle it's currently in a Quantum Superposition of Spins' States
+            if(quantum_state_of_spins == 2) {
+                
+                // Set a new color for closest object
+                particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
+                particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
+
+                particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xffff00);
+                particle_spin_up_arrow_cone_mesh.material.color.setHex(0xffff00);
+                
+                document.getElementById("object_name").innerHTML = (intersects[0].object.parent[ (particle_spin_down_property_keys.length + particle_spin_down_superposition_property_keys)[0] ]);
+
+                for(i = 1; i < particle_spin_down_superposition_property_keys.length; i++) {
+
+                    var div_data_info_elem_id = "object_data_info_" + i;
+                    document.getElementById(div_data_info_elem_id).style.display = "inline";
+
+                    var span_data_title_elem_id = "object_data_title_" + i;
+                    document.getElementById(span_data_title_elem_id).innerHTML = particle_spin_down_superposition_property_keys[i];
+                    document.getElementById(span_data_title_elem_id).style.display = "inline";
+
+                    var some_object_data_info = (intersects[0].object.parent[(particle_spin_down_property_keys.length + particle_spin_down_superposition_property_keys)[i]])[0];
+
+                    var some_object_data_info_keys = Object.keys(some_object_data_info);
+
+                    var current_object_data_info = "";
+
+                    for(j = 0; j < some_object_data_info_keys.length; j++)
+                        current_object_data_info += "- <b><u>" + some_object_data_info_keys[j] + "</u></b>: " + some_object_data_info[some_object_data_info_keys[j]] + "<br/>";
+
+                    var span_data_content_elem_id = "object_data_content_" + i;
+                    document.getElementById(span_data_content_elem_id).innerHTML = current_object_data_info;
+                    document.getElementById(span_data_content_elem_id).style.display = "inline";
+
+                }
+
+            }
+            else {
+
+                document.getElementById("object_name").innerHTML = intersects[0].object.parent[particle_spin_down_property_keys[0]];
+
+                for(i = 1; i < particle_spin_down_property_keys.length; i++) {
+
+                    var div_data_info_elem_id = "object_data_info_" + i;
+                    document.getElementById(div_data_info_elem_id).style.display = "inline";
+
+                    var span_data_title_elem_id = "object_data_title_" + i;
+                    document.getElementById(span_data_title_elem_id).innerHTML = particle_spin_down_property_keys[i];
+                    document.getElementById(span_data_title_elem_id).style.display = "inline";
+
+                    var some_object_data_info = (intersects[0].object.parent[particle_spin_down_property_keys[i]])[0];
+
+                    var some_object_data_info_keys = Object.keys(some_object_data_info);
+
+                    var current_object_data_info = "";
+
+                    for(j = 0; j < some_object_data_info_keys.length; j++)
+                        current_object_data_info += "- <b><u>" + some_object_data_info_keys[j] + "</u></b>: " + some_object_data_info[some_object_data_info_keys[j]] + "<br/>";
+
+                    var span_data_content_elem_id = "object_data_content_" + i;
+                    document.getElementById(span_data_content_elem_id).innerHTML = current_object_data_info;
+                    document.getElementById(span_data_content_elem_id).style.display = "inline";
+
+                }
+
+            }
+
+        }
+
+    } 
+    else { // There are no intersections
+
+        // Restore previous intersection object (if it exists) to its original map's texture
+        if(SPIN_DOWN_INTERSECTED) {
+            
+            particle_spin_up_arrow_cylinder_mesh.material.needsUpdate = true;
+            particle_spin_up_arrow_cone_mesh.material.needsUpdate = true;
+            
+            particle_spin_up_arrow_cylinder_mesh.material.color.setHex(0xf88000);
+            particle_spin_up_arrow_cone_mesh.material.color.setHex(0xf22000);
+            
+            particle_spin_down_arrow_cylinder_mesh.material.needsUpdate = true;
+            particle_spin_down_arrow_cone_mesh.material.needsUpdate = true;
+            
+            particle_spin_down_arrow_cylinder_mesh.material.color.setHex(0xf88000);
+            particle_spin_down_arrow_cone_mesh.material.color.setHex(0xf22000);
+
+            document.getElementById("object_name").innerHTML = "";
+
+            for(i = 1; i < particle_spin_down_property_keys.length; i++) {
+
+                var div_data_info_elem_id = "object_data_info_" + i;
+                document.getElementById(div_data_info_elem_id).style.display = "none";
+
+                var span_data_title_elem_id = "object_data_title_" + i;
+                document.getElementById(span_data_title_elem_id).innerHTML = "";
+                document.getElementById(span_data_title_elem_id).style.display = "none";
+
+                var span_data_content_elem_id = "object_data_content_" + i;
+                document.getElementById(span_data_content_elem_id).innerHTML = "";
+                document.getElementById(span_data_content_elem_id).style.display = "none";
+
+            }
+
+            for(i = 1; i < particle_spin_down_superposition_property_keys.length; i++) {
+
+                var div_data_info_elem_id = "object_data_info_" + i;
+                document.getElementById(div_data_info_elem_id).style.display = "none";
+
+                var span_data_title_elem_id = "object_data_title_" + i;
+                document.getElementById(span_data_title_elem_id).innerHTML = "";
+                document.getElementById(span_data_title_elem_id).style.display = "none";
+
+                var span_data_content_elem_id = "object_data_content_" + i;
+                document.getElementById(span_data_content_elem_id).innerHTML = "";
+                document.getElementById(span_data_content_elem_id).style.display = "none";
+
+            }
+
+        }
+
+        // Remove previous intersection object reference
+        // by setting current intersection object to "nothing"
+        SPIN_DOWN_INTERSECTED = null;
+
+    }
+
+}
+
 // The Particle's rotation movements
 function particle_rotation_movement() {
     
@@ -1820,20 +1822,20 @@ function particle_rotation_movement() {
 // The Particle's Spins' translaction movements around the Particle
 function particle_spins_translaction_movements() {
 
-    // Creating the quarternion for the Particle's Spin Down State
-    var quaternion_for_particle_spin_down = new THREE.Quaternion();
-
-    // Setting and applying the quarternion's Y Axis for the Particle's Spin Down State
-    quaternion_for_particle_spin_down.setFromAxisAngle( y_axis, ( motions_factor * 0.02 ) );
-    particle_spin_down_pivot.applyQuaternion(quaternion_for_particle_spin_down);
-    
-    
     // Creating the quarternion for the Particle's Spin Up State
     var quaternion_for_particle_spin_up = new THREE.Quaternion();
 
     // Setting and applying the quarternion's Y Axis for the Particle's Spin Up State
-    quaternion_for_particle_spin_up.setFromAxisAngle( y_axis, ( motions_factor * -0.02 ) );
+    quaternion_for_particle_spin_up.setFromAxisAngle( y_axis, ( motions_factor * 0.02 ) );
     particle_spin_up_pivot.applyQuaternion(quaternion_for_particle_spin_up);
+    
+    
+    // Creating the quarternion for the Particle's Spin Down State
+    var quaternion_for_particle_spin_down = new THREE.Quaternion();
+    
+    // Setting and applying the quarternion's Y Axis for the Particle's Spin Down State
+    quaternion_for_particle_spin_down.setFromAxisAngle( y_axis, ( motions_factor * -0.02 ) );
+    particle_spin_down_pivot.applyQuaternion(quaternion_for_particle_spin_down);
     
 }
 
