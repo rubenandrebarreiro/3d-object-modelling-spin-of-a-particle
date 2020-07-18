@@ -2,8 +2,8 @@
   "Name": "Spin Down (&#8595;)",
   "State's Information": [{
       "No. Possible States/Outcomes": "1 (Classical State)",
-      "Probabilities for States/Outcomes": "{ |&#8595;⟩ = 1.00 (100&#37;) , |&#8593;⟩ = 0.00 (0&#37;) }",
-      "Quantum Number/Energy Level": "0",
+      "Probabilities for States/Outcomes": "{ |&#8593;⟩ = 0.00 (0&#37;) , |&#8595;⟩ = 1.00 (100&#37;) }",
+      "Quantum Number/Energy Level": "1",
       "Ket's Notation": "|&#8595;⟩"
   }],
   "Spin's Information": [{
